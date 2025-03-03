@@ -1,0 +1,122 @@
+/* Theme Definitions */
+.dark-mode {
+  --bg-primary: #1f2937;
+  --text-primary: #d1d5db;
+  --bg-secondary: #374151;
+  --text-secondary: #9ca3af;
+  --accent-color: #60a5fa;
+  --button-radius: 6px;
+}
+.light-mode {
+  --bg-primary: #f3f4f6;
+  --text-primary: #1f2937;
+  --bg-secondary: #e5e7eb;
+  --text-secondary: #374151;
+  --accent-color: #3b82f6;
+  --button-radius: 6px;
+}
+.green-mode {
+  --bg-primary: #064e3b;
+  --text-primary: #ecfdf5;
+  --bg-secondary: #065f46;
+  --text-secondary: #a7f3d0;
+  --accent-color: #10b981;
+  --button-radius: 6px;
+}
+.blue-mode {
+  --bg-primary: #0c4a6e;
+  --text-primary: #e0f2fe;
+  --bg-secondary: #0369a1;
+  --text-secondary: #bae6fd;
+  --accent-color: #0ea5e9;
+  --button-radius: 6px;
+}
+.purple-mode {
+  --bg-primary: #4c1d95;
+  --text-primary: #f5f3ff;
+  --bg-secondary: #6d28d9;
+  --text-secondary: #ddd6fe;
+  --accent-color: #8b5cf6;
+  --button-radius: 6px;
+}
+.darkblue-mode {
+  --bg-primary: #1e3a8a;
+  --text-primary: #dbeafe;
+  --bg-secondary: #1e40af;
+  --text-secondary: #93c5fd;
+  --accent-color: #3b82f6;
+  --button-radius: 6px;
+}
+.darkpurple-mode {
+  --bg-primary: #2e1065;
+  --text-primary: #ede9fe;
+  --bg-secondary: #4c1d95;
+  --text-secondary: #c4b5fd;
+  --accent-color: #a78bfa;
+  --button-radius: 6px;
+}
+
+/* Animation Effects */
+.pulsate {
+  animation: pulsate 1.5s infinite;
+}
+@keyframes pulsate {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Custom Classes */
+.model-dropdown {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.rounded-custom {
+  border-radius: var(--button-radius);
+}
+.message-actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.ai-message:hover .message-actions {
+  opacity: 1;
+}
+.action-btn {
+  color: var(--accent-color);
+  background-color: var(--bg-primary);
+  border-radius: var(--button-radius);
+  padding: 2px 8px;
+  margin-right: 5px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+.action-btn:hover {
+  opacity: 0.8;
+}
+
+/* Code Block Styling */
+pre {
+  background-color: rgba(0,0,0,0.2);
+  padding: 1em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+}
+code {
+  font-family: monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

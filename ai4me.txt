@@ -1,0 +1,1378 @@
+title: ai4me
+a pragmatic ai that learns from you
+
+## index.html
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ai4me</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode h-screen flex items-center justify-center relative">
+  <!-- Main Chat Interface -->
+  <div class="w-full h-full bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-md rounded-md p-4 flex flex-col relative">
+    <div class="flex justify-between items-center mb-4">
+      <button id="powerButton" class="w-16 h-16 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-custom flex items-center justify-center"><i class="fas fa-cog text-2xl"></i></button>
+      <button id="historyButton" class="w-16 h-16 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-custom ml-2 flex items-center justify-center"><i class="fas fa-history text-2xl"></i></button>
+    </div>
+    <div id="conversation" class="flex-grow bg-[var(--bg-secondary)] p-4 overflow-y-auto mb-4 text-lg"></div>
+    <div class="flex gap-2">
+      <input id="messageInput" type="text" class="flex-1 rounded-custom p-2 text-black" placeholder="Type your message...">
+      <button id="talkButton" class="bg-[var(--accent-color)] text-[var(--text-primary)] px-4 py-2 rounded-custom text-2xl whitespace-nowrap">Talk</button>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div id="applet" class="applet fixed top-0 right-0 w-80 h-full shadow-md p-4 bg-[var(--bg-secondary)] text-[var(--text-primary)] transform translate-x-full transition-transform duration-300 overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-sm font-bold">Settings</h2>
+      <button id="closeSettings" class="text-xl">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Interface Customization -->
+    <div class="mb-4 p-2 bg-[var(--bg-primary)] rounded-md">
+      <h3 class="text-sm font-bold mb-2">Interface Customization</h3>
+      
+      <!-- Theme Selector -->
+      <div class="mb-2">
+        <label class="block text-xs mb-2">Theme</label>
+        <div class="flex flex-wrap gap-2">
+          <button id="darkTheme" class="w-8 h-8 rounded-full bg-gray-800 border-2 border-transparent" title="Dark"></button>
+          <button id="lightTheme" class="w-8 h-8 rounded-full bg-gray-200 border-2 border-transparent" title="Light"></button>
+          <button id="greenTheme" class="w-8 h-8 rounded-full bg-green-800 border-2 border-transparent" title="Green"></button>
+          <button id="blueTheme" class="w-8 h-8 rounded-full bg-blue-800 border-2 border-transparent" title="Blue"></button>
+          <button id="purpleTheme" class="w-8 h-8 rounded-full bg-purple-800 border-2 border-transparent" title="Purple"></button>
+          <button id="darkblueTheme" class="w-8 h-8 rounded-full bg-blue-900 border-2 border-transparent" title="Dark Blue"></button>
+          <button id="darkpurpleTheme" class="w-8 h-8 rounded-full bg-purple-900 border-2 border-transparent" title="Dark Purple"></button>
+        </div>
+      </div>
+      
+      <!-- Text Size -->
+      <div class="mb-2">
+        <label class="block text-xs mb-1">Text Size</label>
+        <div class="flex items-center">
+          <button id="decreaseTextSize" class="px-2 py-1 rounded-custom bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm">-</button>
+          <span id="textSizeDisplay" class="mx-2">16px</span>
+          <button id="increaseTextSize" class="px-2 py-1 rounded-custom bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm">+</button>
+        </div>
+      </div>
+      
+      <!-- Button Style -->
+      <div class="mb-2">
+        <label class="block text-xs mb-1">Button Style</label>
+        <div class="flex flex-col space-y-2">
+          <div>
+            <label class="text-xs">Corner Roundness:</label>
+            <input type="range" id="buttonRoundness" min="0" max="20" value="6" class="w-full">
+          </div>
+          <div>
+            <label class="text-xs">Accent Color:</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <button data-color="#3b82f6" class="w-6 h-6 rounded-full bg-blue-500 border border-white"></button>
+              <button data-color="#10b981" class="w-6 h-6 rounded-full bg-green-500 border border-transparent"></button>
+              <button data-color="#ef4444" class="w-6 h-6 rounded-full bg-red-500 border border-transparent"></button>
+              <button data-color="#f59e0b" class="w-6 h-6 rounded-full bg-yellow-500 border border-transparent"></button>
+              <button data-color="#8b5cf6" class="w-6 h-6 rounded-full bg-purple-500 border border-transparent"></button>
+              <button data-color="#ec4899" class="w-6 h-6 rounded-full bg-pink-500 border border-transparent"></button>
+              <button data-color="#06b6d4" class="w-6 h-6 rounded-full bg-cyan-500 border border-transparent"></button>
+              <button data-color="#14b8a6" class="w-6 h-6 rounded-full bg-teal-500 border border-transparent"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- OpenRouter API Info -->
+    <div class="mb-4 p-2 bg-[var(--bg-primary)] rounded-md">
+      <h3 class="text-sm font-bold mb-2">API Settings</h3>
+      <div class="mb-2">
+        <label class="block text-xs mb-1">API Key</label>
+        <input id="apiKey" type="password" class="w-full border rounded-md p-1 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm" placeholder="Enter your OpenRouter API key">
+        <div id="apiKeyStatus" class="text-xs mt-1 hidden"></div>
+        <button id="validateApiKey" class="mt-1 px-2 py-1 rounded-custom bg-[var(--accent-color)] text-white text-xs">Validate Key</button>
+      </div>
+    </div>
+    
+    <!-- Model Selection -->
+    <div class="mb-4 p-2 bg-[var(--bg-primary)] rounded-md">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-bold">Model Selection</h3>
+        <button id="addModelBtn" class="text-xs px-2 py-1 bg-[var(--accent-color)] text-white rounded-custom">Add Model</button>
+      </div>
+      <select id="modelSelect" class="w-full border rounded-md p-1 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm model-dropdown">
+        <option value="">Select a model</option>
+        
+        <optgroup label="Free Models" id="freeModels">
+          <option value="google/gemini-2.0-flash-lite-preview-02-05">Google Gemini 2.0 Flash Lite (1M context)</option>
+          <option value="qwen/qwen-vl-plus">Qwen VL Plus (8K context)</option>
+          <option value="deepseek/deepseek-r1">DeepSeek R1 (164K context)</option>
+          <option value="deepseek/deepseek-chat">DeepSeek Chat (128K context)</option>
+          <option value="google/gemini-2.0-flash-thinking-exp-1219">Google Gemini 2.0 Flash Thinking (40K context)</option>
+          <option value="google/gemini-2.0-flash-exp">Google Gemini 2.0 Flash Exp (1.05M context)</option>
+        </optgroup>
+        
+        <optgroup label="DeepSeek Models" id="deepseekModels">
+          <option value="deepseek/deepseek-r1-distill-qwen-1.5b">DeepSeek R1 Distill Qwen 1.5B (131K, $0.18/M)</option>
+          <option value="deepseek/deepseek-r1-distill-llama-8b">DeepSeek R1 Distill Llama 8B (32K, $0.04/M)</option>
+          <option value="deepseek/deepseek-r1-distill-qwen-14b">DeepSeek R1 Distill Qwen 14B (64K, $0.15/M)</option>
+          <option value="deepseek/deepseek-r1-distill-qwen-32b">DeepSeek R1 Distill Qwen 32B (131K, $0.12-0.18/M)</option>
+        </optgroup>
+        
+        <optgroup label="OpenAI" id="openaiModels">
+          <option value="openai/gpt-4o">GPT-4o</option>
+          <option value="openai/gpt-40-mini">GPT-4 Turbo</option>
+          <option value="openai/gpt-4">GPT-4</option>
+          <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+        </optgroup>
+        
+        <optgroup label="Anthropic" id="anthropicModels">
+          <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
+          <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
+          <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+          <option value="anthropic/claude-2">Claude 2</option>
+        </optgroup>
+        
+        <optgroup label="Google" id="googleModels">
+          <option value="google/gemini-pro">Gemini Pro</option>
+          <option value="google/gemini-1.5-pro">Gemini 1.5 Pro</option>
+        </optgroup>
+        
+        <optgroup label="Other Premium Models" id="otherModels">
+          <option value="liquid/lfm-7b">Liquid LFM-7B (32K, $0.01/M)</option>
+          <option value="mistralai/mistral-small-24b-instruct-2501">Mistral Small 24B (32K, $0.07-0.14/M)</option>
+          <option value="perplexity/llama-3.1-sonar-small-128k-online">Perplexity Llama 3.1 Sonar (131K, $0.2/M)</option>
+          <option value="cohere/command-r7b-12-2024">Cohere Command R7B (128K, $0.0375-0.15/M)</option>
+          <option value="meta-llama/llama-3-70b-instruct">Llama 3 70B</option>
+          <option value="meta-llama/llama-3-8b-instruct">Llama 3 8B</option>
+          <option value="mistralai/mixtral-8x7b">Mixtral 8x7B</option>
+        </optgroup>
+        
+        <optgroup label="Custom Models" id="customModelsGroup">
+          <!-- Custom models will be added here -->
+        </optgroup>
+        
+        <option value="custom">Add Custom Model...</option>
+      </select>
+      <div id="customModelContainer" class="mt-2 hidden">
+        <input id="customModel" type="text" class="w-full border rounded-md p-1 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm" placeholder="Enter model identifier">
+        <input id="customModelDisplay" type="text" class="w-full border rounded-md p-1 mt-1 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm" placeholder="Display name (optional)">
+        <button id="saveCustomModel" class="mt-1 px-2 py-1 rounded-custom bg-[var(--accent-color)] text-white text-xs">Save Model</button>
+      </div>
+      <div id="modelManageContainer" class="mt-2 hidden">
+        <p class="text-xs mb-1">Manage models:</p>
+        <button id="deleteModelBtn" class="px-2 py-1 rounded-custom bg-red-600 text-white text-xs">Delete Selected</button>
+      </div>
+    </div>
+    
+    <!-- User Instructions -->
+    <div class="mb-4 p-2 bg-[var(--bg-primary)] rounded-md">
+      <h3 class="text-sm font-bold mb-2">AI Instructions</h3>
+      <div class="mb-2">
+        <label class="block text-xs mb-1">System Instructions</label>
+        <textarea id="userInfo" class="w-full border rounded-md p-1 h-16 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm" placeholder="What you should know about me"></textarea>
+      </div>
+      <div class="mb-2">
+        <label class="block text-xs mb-1">Response Style</label>
+        <textarea id="responseInstructions" class="w-full border rounded-md p-1 h-16 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm" placeholder="How I want you to respond"></textarea>
+      </div>
+      <div class="mb-2">
+        <label class="block text-xs mb-1">AI Notes</label>
+        <textarea id="aiNotes" class="w-full border rounded-md p-1 h-16 bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm" placeholder="AI Notes"></textarea>
+      </div>
+      <div>
+        <label class="flex items-center text-sm">
+          <input id="aiSpeechToggle" type="checkbox" class="mr-2"> Enable AI Speech
+        </label>
+      </div>
+    </div>
+    
+    <button id="saveSettings" class="w-full mt-2 px-2 py-1 rounded-custom bg-[var(--accent-color)] text-white text-sm">Save Settings</button>
+    <div class="mt-4 text-center text-xs">
+      <p>Created by <a href="https://Ai-Nspired.com" target="_blank" class="text-blue-400">Ai-N</a></p>
+    </div>
+  </div>
+
+  <!-- Add Model Dialog -->
+  <div id="addModelDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 hidden">
+    <div class="bg-[var(--bg-primary)] text-[var(--text-primary)] p-4 rounded-md w-80">
+      <h3 class="text-lg font-bold mb-4">Add New Model</h3>
+      <p class="text-sm mb-4">Copy and paste the model ID from OpenRouter and add a display name:</p>
+      <div class="mb-2">
+        <label class="block text-xs mb-1">Model ID</label>
+        <input id="newModelId" type="text" class="w-full border rounded-md p-1 bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm" placeholder="e.g., openai/gpt-4-32k">
+      </div>
+      <div class="mb-4">
+        <label class="block text-xs mb-1">Display Name</label>
+        <input id="newModelName" type="text" class="w-full border rounded-md p-1 bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm" placeholder="e.g., GPT-4 32K">
+      </div>
+      <div class="mb-4">
+        <label class="block text-xs mb-1">Category</label>
+        <select id="newModelCategory" class="w-full border rounded-md p-1 bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm">
+          <option value="freeModels">Free Models</option>
+          <option value="openaiModels">OpenAI</option>
+          <option value="anthropicModels">Anthropic</option>
+          <option value="googleModels">Google</option>
+          <option value="deepseekModels">DeepSeek</option>
+          <option value="otherModels">Other Premium Models</option>
+          <option value="customModelsGroup" selected>Custom Models</option>
+        </select>
+      </div>
+      <div class="flex justify-end">
+        <button id="cancelAddModel" class="px-2 py-1 rounded-custom bg-gray-600 text-white text-sm mr-2">Cancel</button>
+        <button id="confirmAddModel" class="px-2 py-1 rounded-custom bg-[var(--accent-color)] text-white text-sm">Add Model</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Panel -->
+  <div id="history" class="history fixed top-0 left-0 w-80 h-full shadow-md p-4 bg-[var(--bg-secondary)] text-[var(--text-primary)] transform -translate-x-full transition-transform duration-300 overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-sm font-bold">Chat History</h2>
+      <button id="closeHistory" class="text-xl">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div id="historyList" class="overflow-y-auto mb-4">
+      <!-- Chat history items will be appended here -->
+    </div>
+    <div class="flex justify-between">
+      <button id="copyHistory" class="px-2 py-1 rounded-custom bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm">Copy</button>
+      <button id="exportHistory" class="px-2 py-1 rounded-custom bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm">Export</button>
+      <button id="clearHistory" class="px-2 py-1 rounded-custom bg-red-600 text-white text-sm">Clear</button>
+    </div>
+  </div>
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.0/marked.min.js"></script>
+  
+  <!-- Our Modular JS Files -->
+  <script src="js/config.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+```
+
+## style.css
+```css
+/* Theme Definitions */
+.dark-mode {
+  --bg-primary: #1f2937;
+  --text-primary: #d1d5db;
+  --bg-secondary: #374151;
+  --text-secondary: #9ca3af;
+  --accent-color: #60a5fa;
+  --button-radius: 6px;
+}
+.light-mode {
+  --bg-primary: #f3f4f6;
+  --text-primary: #1f2937;
+  --bg-secondary: #e5e7eb;
+  --text-secondary: #374151;
+  --accent-color: #3b82f6;
+  --button-radius: 6px;
+}
+.green-mode {
+  --bg-primary: #064e3b;
+  --text-primary: #ecfdf5;
+  --bg-secondary: #065f46;
+  --text-secondary: #a7f3d0;
+  --accent-color: #10b981;
+  --button-radius: 6px;
+}
+.blue-mode {
+  --bg-primary: #0c4a6e;
+  --text-primary: #e0f2fe;
+  --bg-secondary: #0369a1;
+  --text-secondary: #bae6fd;
+  --accent-color: #0ea5e9;
+  --button-radius: 6px;
+}
+.purple-mode {
+  --bg-primary: #4c1d95;
+  --text-primary: #f5f3ff;
+  --bg-secondary: #6d28d9;
+  --text-secondary: #ddd6fe;
+  --accent-color: #8b5cf6;
+  --button-radius: 6px;
+}
+.darkblue-mode {
+  --bg-primary: #1e3a8a;
+  --text-primary: #dbeafe;
+  --bg-secondary: #1e40af;
+  --text-secondary: #93c5fd;
+  --accent-color: #3b82f6;
+  --button-radius: 6px;
+}
+.darkpurple-mode {
+  --bg-primary: #2e1065;
+  --text-primary: #ede9fe;
+  --bg-secondary: #4c1d95;
+  --text-secondary: #c4b5fd;
+  --accent-color: #a78bfa;
+  --button-radius: 6px;
+}
+
+/* Animation Effects */
+.pulsate {
+  animation: pulsate 1.5s infinite;
+}
+@keyframes pulsate {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Custom Classes */
+.model-dropdown {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.rounded-custom {
+  border-radius: var(--button-radius);
+}
+.message-actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.ai-message:hover .message-actions {
+  opacity: 1;
+}
+.action-btn {
+  color: var(--accent-color);
+  background-color: var(--bg-primary);
+  border-radius: var(--button-radius);
+  padding: 2px 8px;
+  margin-right: 5px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+.action-btn:hover {
+  opacity: 0.8;
+}
+
+/* Code Block Styling */
+pre {
+  background-color: rgba(0,0,0,0.2);
+  padding: 1em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+}
+code {
+  font-family: monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+```
+
+## js/config.js
+```javascript
+// Global configuration and state variables
+const config = {
+  baseUrl: 'https://openrouter.ai/api/v1', // Fixed for OpenRouter
+  apiKey: '',
+  preferredModel: '',
+  userInfo: '',
+  responseInstructions: '',
+  textSize: 16,
+  aiNotes: '',
+  currentTheme: 'dark-mode',
+  buttonRadius: 6,
+  accentColor: '#3b82f6',
+  aiSpeechEnabled: true
+};
+
+// Speech recognition variables
+let recognizing = false;
+let recognition;
+let currentUtterance = null;
+
+// Storage for models and history
+let chatHistory = [];
+let customModels = [];
+let isApiKeyValid = false;
+
+// Initialize speech recognition if available
+if ('webkitSpeechRecognition' in window) {
+  recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+}
+```
+
+## js/themes.js
+```javascript
+// Theme Management
+function setTheme(themeName) {
+  // Remove all possible theme classes
+  document.body.classList.remove('dark-mode', 'light-mode', 'green-mode', 'blue-mode', 'purple-mode', 'darkblue-mode', 'darkpurple-mode');
+  // Add the selected theme
+  document.body.classList.add(themeName);
+  localStorage.setItem('theme', themeName);
+  config.currentTheme = themeName;
+  
+  // Update theme selection indicators
+  updateThemeSelectionIndicators();
+}
+
+function updateThemeSelectionIndicators() {
+  // Remove all selection borders
+  const themeButtons = [darkTheme, lightTheme, greenTheme, blueTheme, purpleTheme, darkblueTheme, darkpurpleTheme];
+  themeButtons.forEach(btn => btn.classList.remove('border-white', 'border-black'));
+  
+  // Add border to current theme
+  switch(config.currentTheme) {
+    case 'dark-mode':
+      darkTheme.classList.add('border-white');
+      break;
+    case 'light-mode':
+      lightTheme.classList.add('border-black');
+      break;
+    case 'green-mode':
+      greenTheme.classList.add('border-white');
+      break;
+    case 'blue-mode':
+      blueTheme.classList.add('border-white');
+      break;
+    case 'purple-mode':
+      purpleTheme.classList.add('border-white');
+      break;
+    case 'darkblue-mode':
+      darkblueTheme.classList.add('border-white');
+      break;
+    case 'darkpurple-mode':
+      darkpurpleTheme.classList.add('border-white');
+      break;
+  }
+}
+
+function setButtonRoundness(radius) {
+  document.documentElement.style.setProperty('--button-radius', radius + 'px');
+  localStorage.setItem('buttonRadius', radius);
+  config.buttonRadius = radius;
+}
+
+function setAccentColor(color) {
+  document.documentElement.style.setProperty('--accent-color', color);
+  localStorage.setItem('accentColor', color);
+  config.accentColor = color;
+  
+  // Update accent color buttons selection
+  accentColorButtons.forEach(button => {
+    if (button.dataset.color === color) {
+      button.classList.add('border-white', 'border-2');
+    } else {
+      button.classList.remove('border-white', 'border-2');
+      button.classList.add('border', 'border-transparent');
+    }
+  });
+}
+```
+
+## js/models.js
+```javascript
+// Custom Model Management
+function loadCustomModels() {
+  // Clear existing custom model options
+  while (customModelsGroup.firstChild) {
+    customModelsGroup.removeChild(customModelsGroup.firstChild);
+  }
+  
+  // Add each custom model from storage
+  customModels.forEach(model => {
+    const option = document.createElement('option');
+    option.value = model.id;
+    option.textContent = model.name || model.id;
+    option.dataset.custom = 'true';
+    
+    // Add to the appropriate category group if specified
+    if (model.category && model.category !== 'customModelsGroup') {
+      const categoryGroup = document.getElementById(model.category);
+      if (categoryGroup) {
+        categoryGroup.appendChild(option);
+        return;
+      }
+    }
+    
+    // Default to custom models group
+    customModelsGroup.appendChild(option);
+  });
+}
+
+function saveCustomModelsToStorage() {
+  localStorage.setItem('customModels', JSON.stringify(customModels));
+}
+
+function addCustomModel(id, name, category = 'customModelsGroup') {
+  // Check if model already exists
+  const existingModel = customModels.find(model => model.id === id);
+  if (existingModel) {
+    alert('This model ID already exists in your list');
+    return false;
+  }
+  
+  // Add to our custom models array
+  customModels.push({
+    id: id,
+    name: name || id, // Use ID as name if no name provided
+    category: category
+  });
+  
+  // Save to localStorage
+  saveCustomModelsToStorage();
+  
+  // Reload the dropdown
+  loadCustomModels();
+  return true;
+}
+
+function deleteSelectedModel() {
+  const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+  const modelId = selectedOption.value;
+  
+  // Check if it's a custom model
+  const modelIndex = customModels.findIndex(model => model.id === modelId);
+  if (modelIndex === -1) {
+    alert('You can only delete custom models');
+    return;
+  }
+  
+  // Confirm deletion
+  if (confirm(`Are you sure you want to delete the model "${selectedOption.textContent}"?`)) {
+    // Remove from array
+    customModels.splice(modelIndex, 1);
+    // Save to localStorage
+    saveCustomModelsToStorage();
+    // Reload the dropdown
+    loadCustomModels();
+    // Reset selection
+    modelSelect.value = '';
+    // Hide manage controls
+    modelManageContainer.classList.add('hidden');
+  }
+}
+
+function showAddModelDialog() {
+  addModelDialog.classList.remove('hidden');
+  newModelId.value = '';
+  newModelName.value = '';
+  newModelCategory.value = 'customModelsGroup';
+}
+
+function hideAddModelDialog() {
+  addModelDialog.classList.add('hidden');
+}
+```
+
+## js/api.js
+```javascript
+// API Communication
+async function validateApiKey(key) {
+  if (!key) {
+    updateApiKeyStatus('Please enter an API key', false);
+    return false;
+  }
+
+  try {
+    // Simple validation request to OpenRouter
+    const response = await fetch(`${config.baseUrl}/models`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${key}`
+      }
+    });
+
+    if (response.ok) {
+      updateApiKeyStatus('API key is valid!', true);
+      return true;
+    } else {
+      updateApiKeyStatus('Invalid API key', false);
+      return false;
+    }
+  } catch (error) {
+    updateApiKeyStatus('Error validating API key', false);
+    console.error('Validation error:', error);
+    return false;
+  }
+}
+
+function updateApiKeyStatus(message, isValid) {
+  apiKeyStatus.textContent = message;
+  apiKeyStatus.classList.remove('hidden', 'text-green-500', 'text-red-500');
+  apiKeyStatus.classList.add(isValid ? 'text-green-500' : 'text-red-500');
+  isApiKeyValid = isValid;
+}
+
+// Process AI Control Commands
+function processAiControlCommands(aiResponse) {
+  let updatedResponse = aiResponse;
+  
+  // Check for system prompt updates
+  if (aiResponse.includes('[[SYSTEM:')) {
+    const systemMatch = aiResponse.match(/\[\[SYSTEM:(.*?)\]\]/s);
+    if (systemMatch && systemMatch[1]) {
+      config.userInfo = systemMatch[1].trim();
+      userInfoInput.value = config.userInfo;
+      localStorage.setItem('userInfo', config.userInfo);
+      updatedResponse = updatedResponse.replace(/\[\[SYSTEM:(.*?)\]\]/s, '*System prompt updated*\n\n');
+    }
+  }
+  
+  // Check for response instruction updates
+  if (aiResponse.includes('[[RESPOND:')) {
+    const respondMatch = aiResponse.match(/\[\[RESPOND:(.*?)\]\]/s);
+    if (respondMatch && respondMatch[1]) {
+      config.responseInstructions = respondMatch[1].trim();
+      responseInstructionsInput.value = config.responseInstructions;
+      localStorage.setItem('responseInstructions', config.responseInstructions);
+      updatedResponse = updatedResponse.replace(/\[\[RESPOND:(.*?)\]\]/s, '*Response instructions updated*\n\n');
+    }
+  }
+  
+  // Check for note updates
+  if (aiResponse.includes('[[NOTE:')) {
+    const noteMatch = aiResponse.match(/\[\[NOTE:(.*?)\]\]/s);
+    if (noteMatch && noteMatch[1]) {
+      config.aiNotes = noteMatch[1].trim();
+      aiNotesInput.value = config.aiNotes;
+      localStorage.setItem('aiNotes', config.aiNotes);
+      updatedResponse = updatedResponse.replace(/\[\[NOTE:(.*?)\]\]/s, '*Note saved*\n\n');
+    }
+  }
+  
+  return updatedResponse;
+}
+
+// Send Message to API
+async function sendMessageToApi(message) {
+  // Regular API call
+  const payload = {
+    model: config.preferredModel,
+    messages: [
+      { 
+        role: "system", 
+        content: `What you should know about me: ${config.userInfo}
+How I want you to respond: ${config.responseInstructions}
+
+You have the ability to:
+1. Update system prompts with [[SYSTEM:your new prompt]]
+2. Update response instructions with [[RESPOND:your new instructions]]
+3. Save notes with [[NOTE:your note content]]
+
+Current notes: ${config.aiNotes || "No notes yet."}`
+      },
+      { role: "user", content: message }
+    ]
+  };
+
+  console.log('Sending request to OpenRouter:', payload);
+
+  const response = await fetch(`${config.baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${config.apiKey}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log('Response from OpenRouter:', data);
+  
+  return data.choices[0].message.content.trim();
+}
+```
+
+## js/history.js
+```javascript
+// History Management
+function saveToHistory(userMessage, aiMessage) {
+  const timestamp = new Date().toLocaleString();
+  
+  // Check if this is a continuation of the last conversation
+  const isNewConversation = chatHistory.length === 0 || 
+                          (Date.now() - new Date(chatHistory[chatHistory.length-1].timestamp).getTime() > 3600000); // 1 hour
+  
+  if (isNewConversation) {
+    // Create new conversation entry
+    chatHistory.push({ 
+      timestamp, 
+      messages: [{ role: 'user', content: userMessage }, { role: 'assistant', content: aiMessage }],
+      preview: userMessage.substring(0, 30) + (userMessage.length > 30 ? '...' : '')
+    });
+  } else {
+    // Add to existing conversation
+    chatHistory[chatHistory.length-1].messages.push(
+      { role: 'user', content: userMessage },
+      { role: 'assistant', content: aiMessage }
+    );
+    // Update timestamp
+    chatHistory[chatHistory.length-1].timestamp = timestamp;
+  }
+  
+  localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+function loadChatHistory() {
+  historyList.innerHTML = '';
+  
+  if (chatHistory.length === 0) {
+    const emptyMessage = document.createElement('p');
+    emptyMessage.textContent = 'No chat history yet';
+    emptyMessage.classList.add('text-center', 'text-[var(--text-secondary)]', 'italic', 'my-4');
+    historyList.appendChild(emptyMessage);
+    return;
+  }
+  
+  chatHistory.forEach((conversation, index) => {
+    const chatItem = document.createElement('div');
+    chatItem.classList.add('mb-3', 'p-2', 'bg-[var(--bg-primary)]', 'rounded-md', 'cursor-pointer', 'hover:bg-opacity-80');
+    
+    // Format timestamp nicely
+    const date = new Date(conversation.timestamp);
+    const formattedDate = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+    
+    chatItem.innerHTML = `
+      <p class="text-xs text-[var(--text-secondary)]">${formattedDate}</p>
+      <p class="text-sm font-bold mt-1">${conversation.preview || 'Conversation ' + (index + 1)}</p>
+      <p class="text-xs text-[var(--text-secondary)] mt-1">${conversation.messages.length/2} messages</p>
+    `;
+    
+    // Add click event to load this conversation
+    chatItem.addEventListener('click', function() {
+      // Clear the conversation area
+      window.conversation.innerHTML = '';
+      
+      // Add each message
+      conversation.messages.forEach(msg => {
+        if (msg.role === 'user') {
+          const userMessageElement = document.createElement('p');
+          userMessageElement.textContent = msg.content;
+          userMessageElement.classList.add('user-message', 'mb-2', 'pb-2', 'border-b', 'border-[var(--text-secondary)]');
+          window.conversation.appendChild(userMessageElement);
+        } else {
+          const aiMessageElement = document.createElement('div');
+          aiMessageElement.innerHTML = marked(msg.content);
+          aiMessageElement.classList.add('ai-message', 'mb-4', 'pb-2', 'border-b', 'border-[var(--text-secondary)]');
+          
+          // Add message actions
+          const actionsDiv = createMessageActions(aiMessageElement, msg.content);
+          aiMessageElement.appendChild(actionsDiv);
+          
+          window.conversation.appendChild(aiMessageElement);
+        }
+      });
+      
+      window.conversation.scrollTop = 0;
+      
+      // Close the history panel
+      history.classList.add('-translate-x-full');
+    });
+    
+    historyList.appendChild(chatItem);
+  });
+}
+```
+
+## js/ui.js
+```javascript
+// UI Components
+function createMessageActions(messageElement, messageText) {
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'message-actions flex mt-2';
+  
+  // Copy button
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'action-btn';
+  copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(messageText).then(() => {
+      const originalText = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+      setTimeout(() => {
+        copyBtn.innerHTML = originalText;
+      }, 2000);
+    });
+  };
+  
+  // Read button
+  const readBtn = document.createElement('button');
+  readBtn.className = 'action-btn';
+  readBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read';
+  readBtn.onclick = () => {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+    const cleanedText = messageText
+      .replace(/\[\[SYSTEM:.*?\]\]/gs, '')
+      .replace(/\[\[RESPOND:.*?\]\]/gs, '')
+      .replace(/\[\[NOTE:.*?\]\]/gs, '')
+      .trim();
+    
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
+    speechSynthesis.speak(utterance);
+  };
+  
+  // Delete button
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'action-btn bg-red-600 text-white';
+  deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+  deleteBtn.onclick = () => {
+    if (confirm('Delete this message?')) {
+      const userMessageElement = messageElement.previousElementSibling;
+      conversation.removeChild(messageElement);
+      if (userMessageElement && userMessageElement.classList.contains('user-message')) {
+        conversation.removeChild(userMessageElement);
+      }
+    }
+  };
+  
+  actionsDiv.appendChild(copyBtn);
+  actionsDiv.appendChild(readBtn);
+  actionsDiv.appendChild(deleteBtn);
+  
+  return actionsDiv;
+}
+
+function addNotificationMessage(message, color = 'green') {
+  const notificationElement = document.createElement('p');
+  notificationElement.textContent = message;
+  notificationElement.style.color = color;
+  notificationElement.classList.add('notification-message', 'mb-2');
+  conversation.appendChild(notificationElement);
+  conversation.scrollTop = conversation.scrollHeight;
+  
+  // Remove notification after 5 seconds
+  setTimeout(() => {
+    if (conversation.contains(notificationElement)) {
+      conversation.removeChild(notificationElement);
+    }
+  }, 5000);
+}
+
+function updateTalkButtonText() {
+  talkButton.textContent = config.aiSpeechEnabled ? (recognizing ? 'Stop' : 'Talk') : 'Send';
+}
+
+// Add click handlers for UI elements
+function setupEventListeners() {
+  // Speech recognition setup
+  if (recognition) {
+    recognition.onstart = function() {
+      recognizing = true;
+      talkButton.textContent = 'Stop';
+    };
+
+    recognition.onend = function() {
+      recognizing = false;
+      updateTalkButtonText();
+    };
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      messageInput.value = transcript;
+      addMessage();
+    };
+  }
+}
+```
+
+## js/app.js
+```javascript
+// Core message handling
+async function addMessage() {
+  const message = messageInput.value.trim();
+  if (message) {
+    // Handle model commands
+    if (message.toLowerCase().startsWith('add model')) {
+      showAddModelDialog();
+      messageInput.value = '';
+      return;
+    }
+    
+    // Handle delete model commands
+    if (message.toLowerCase().startsWith('delete model')) {
+      const modelToDelete = message.substring(12).trim();
+      const modelOption = Array.from(modelSelect.options).find(option => 
+        option.textContent.toLowerCase().includes(modelToDelete.toLowerCase()) || 
+        option.value.toLowerCase().includes(modelToDelete.toLowerCase())
+      );
+      
+      if (modelOption) {
+        modelSelect.value = modelOption.value;
+        deleteSelectedModel();
+      } else {
+        addNotificationMessage(`Could not find model "${modelToDelete}" to delete.`, 'red');
+      }
+      
+      messageInput.value = '';
+      return;
+    }
+    
+    // Check if API key is configured
+    if (!config.apiKey) {
+      addNotificationMessage('Please configure your OpenRouter API key in settings', 'red');
+      return;
+    }
+
+    // Check if model is selected
+    if (!config.preferredModel) {
+      addNotificationMessage('Please select a model in settings', 'red');
+      return;
+    }
+
+    const messageElement = document.createElement('p');
+    messageElement.textContent = message;
+    messageElement.classList.add('user-message', 'mb-2', 'pb-2', 'border-b', 'border-[var(--text-secondary)]');
+    conversation.appendChild(messageElement);
+    messageInput.value = '';
+    conversation.scrollTop = conversation.scrollHeight;
+
+    const thinkingElement = document.createElement('p');
+    thinkingElement.textContent = 'AI is thinking...';
+    thinkingElement.classList.add('thinking-message', 'text-[var(--text-secondary)]', 'italic');
+    conversation.appendChild(thinkingElement);
+    conversation.scrollTop = conversation.scrollHeight;
+
+    powerButton.classList.add('pulsate');
+
+    try {
+      // Check for direct control commands
+      let aiResponseContent = '';
+      
+      if (message.startsWith('/system ')) {
+        // Update system prompt
+        config.userInfo = message.substring(8);
+        userInfoInput.value = config.userInfo;
+        localStorage.setItem('userInfo', config.userInfo);
+        aiResponseContent = "System prompt updated successfully.";
+      } 
+      else if (message.startsWith('/respond ')) {
+        // Update response instructions
+        config.responseInstructions = message.substring(9);
+        responseInstructionsInput.value = config.responseInstructions;
+        localStorage.setItem('responseInstructions', config.responseInstructions);
+        aiResponseContent = "Response instructions updated successfully.";
+      }
+      else if (message.startsWith('/note ')) {
+        // Save AI notes
+        config.aiNotes = message.substring(6);
+        aiNotesInput.value = config.aiNotes;
+        localStorage.setItem('aiNotes', config.aiNotes);
+        aiResponseContent = "Note saved successfully.";
+      }
+      else {
+        // Regular API call
+        aiResponseContent = await sendMessageToApi(message);
+        
+        // Process any environment control commands in the AI response
+        aiResponseContent = processAiControlCommands(aiResponseContent);
+      }
+
+      // Remove the thinking element
+      conversation.removeChild(thinkingElement);
+      
+      const aiMessageElement = document.createElement('div');
+      aiMessageElement.innerHTML = marked(aiResponseContent);
+      aiMessageElement.classList.add('ai-message', 'mb-4', 'pb-2', 'border-b', 'border-[var(--text-secondary)]');
+      
+      // Add message actions
+      const actionsDiv = createMessageActions(aiMessageElement, aiResponseContent);
+      aiMessageElement.appendChild(actionsDiv);
+      
+      conversation.appendChild(aiMessageElement);
+      conversation.scrollTop = conversation.scrollHeight;
+
+      // Only save regular conversations to history
+      if (!message.startsWith('/')) {
+        saveToHistory(message, aiResponseContent);
+      }
+
+      if (config.aiSpeechEnabled) {
+        // Clean up any special control syntax for speech
+        const speechText = aiResponseContent
+          .replace(/\[\[SYSTEM:.*?\]\]/gs, '')
+          .replace(/\[\[RESPOND:.*?\]\]/gs, '')
+          .replace(/\[\[NOTE:.*?\]\]/gs, '')
+          .trim();
+        
+        currentUtterance = new SpeechSynthesisUtterance(speechText);
+        currentUtterance.onend = () => {
+          if (talkButton.textContent === 'Stop') {
+            talkButton.click(); // Only click if it's in stop mode
+          }
+        };
+        speechSynthesis.speak(currentUtterance);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      conversation.removeChild(thinkingElement);
+      
+      addNotificationMessage(`Error: ${error.message}`, 'red');
+    } finally {
+      powerButton.classList.remove('pulsate');
+    }
+  }
+}
+
+// Event listeners for UI elements
+document.addEventListener('DOMContentLoaded', function() {
+  // Set up speech recognition
+  setupEventListeners();
+  
+  // Model Management
+  modelSelect.addEventListener('change', function() {
+    if (this.value === 'custom') {
+      customModelContainer.classList.remove('hidden');
+      modelManageContainer.classList.add('hidden');
+    } else if (this.value !== '') {
+      customModelContainer.classList.add('hidden');
+      
+      // Check if this is a custom model
+      const isCustomModel = customModels.some(model => model.id === this.value);
+      if (isCustomModel) {
+        modelManageContainer.classList.remove('hidden');
+      } else {
+        modelManageContainer.classList.add('hidden');
+      }
+      
+      config.preferredModel = this.value;
+    }
+  });
+
+  // Button roundness slider
+  buttonRoundness.addEventListener('input', function() {
+    setButtonRoundness(this.value);
+  });
+
+  // Accent color buttons
+  accentColorButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      setAccentColor(this.dataset.color);
+    });
+  });
+
+  addModelBtn.addEventListener('click', showAddModelDialog);
+  deleteModelBtn.addEventListener('click', deleteSelectedModel);
+
+  saveCustomModel.addEventListener('click', () => {
+    const modelId = customModelInput.value.trim();
+    const displayName = customModelDisplay.value.trim();
+    
+    if (!modelId) {
+      alert('Please enter a model ID');
+      return;
+    }
+    
+    if (addCustomModel(modelId, displayName)) {
+      addNotificationMessage(`Added custom model: ${displayName || modelId}`, 'green');
+      modelSelect.value = modelId;
+      customModelContainer.classList.add('hidden');
+      customModelInput.value = '';
+      customModelDisplay.value = '';
+    }
+  });
+
+  // Add Model Dialog
+  confirmAddModel.addEventListener('click', () => {
+    const modelId = newModelId.value.trim();
+    const displayName = newModelName.value.trim();
+    const category = newModelCategory.value;
+    
+    if (!modelId) {
+      alert('Please enter a model ID');
+      return;
+    }
+    
+    if (addCustomModel(modelId, displayName, category)) {
+      addNotificationMessage(`Added model: ${displayName || modelId}`, 'green');
+      modelSelect.value = modelId;
+      hideAddModelDialog();
+    }
+  });
+
+  cancelAddModel.addEventListener('click', hideAddModelDialog);
+
+  // Theme Buttons
+  darkTheme.addEventListener('click', () => setTheme('dark-mode'));
+  lightTheme.addEventListener('click', () => setTheme('light-mode'));
+  greenTheme.addEventListener('click', () => setTheme('green-mode'));
+  blueTheme.addEventListener('click', () => setTheme('blue-mode'));
+  purpleTheme.addEventListener('click', () => setTheme('purple-mode'));
+  darkblueTheme.addEventListener('click', () => setTheme('darkblue-mode'));
+  darkpurpleTheme.addEventListener('click', () => setTheme('darkpurple-mode'));
+
+  // API Key
+  validateApiKeyButton.addEventListener('click', async () => {
+    const key = apiKeyInput.value.trim();
+    await validateApiKey(key);
+  });
+
+  // Panel Controls
+  powerButton.addEventListener('click', () => {
+    applet.classList.toggle('translate-x-full');
+  });
+
+  closeSettings.addEventListener('click', () => {
+    applet.classList.add('translate-x-full');
+  });
+
+  historyButton.addEventListener('click', () => {
+    history.classList.toggle('-translate-x-full');
+    loadChatHistory();
+  });
+
+  closeHistory.addEventListener('click', () => {
+    history.classList.add('-translate-x-full');
+  });
+
+  // History Controls
+  copyHistory.addEventListener('click', () => {
+    let historyText = '';
+    
+    chatHistory.forEach((conversation, index) => {
+      historyText += `--- Conversation ${index + 1} (${conversation.timestamp}) ---\n\n`;
+      
+      conversation.messages.forEach(msg => {
+        historyText += `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}\n\n`;
+      });
+      
+      historyText += '-'.repeat(40) + '\n\n';
+    });
+    
+    navigator.clipboard.writeText(historyText).then(() => {
+      alert('Chat history copied to clipboard');
+    });
+  });
+
+  exportHistory.addEventListener('click', () => {
+    let historyText = '';
+    
+    chatHistory.forEach((conversation, index) => {
+      historyText += `--- Conversation ${index + 1} (${conversation.timestamp}) ---\n\n`;
+      
+      conversation.messages.forEach(msg => {
+        historyText += `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}\n\n`;
+      });
+      
+      historyText += '-'.repeat(40) + '\n\n';
+    });
+    
+    const blob = new Blob([historyText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat_history.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  clearHistory.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all chat history?')) {
+      chatHistory = [];
+      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+      loadChatHistory();
+    }
+  });
+
+  // Text Size
+  decreaseTextSize.addEventListener('click', () => {
+    config.textSize = Math.max(12, config.textSize - 2);
+    conversation.style.fontSize = `${config.textSize}px`;
+    textSizeDisplay.textContent = `${config.textSize}px`;
+    localStorage.setItem('textSize', config.textSize);
+  });
+
+  increaseTextSize.addEventListener('click', () => {
+    config.textSize = Math.min(24, config.textSize + 2);
+    conversation.style.fontSize = `${config.textSize}px`;
+    textSizeDisplay.textContent = `${config.textSize}px`;
+    localStorage.setItem('textSize', config.textSize);
+  });
+
+  // Settings
+  saveSettings.addEventListener('click', async () => {
+    // Get API key and validate it if changed
+    const newApiKey = apiKeyInput.value.trim();
+    if (newApiKey !== config.apiKey) {
+      const isValid = await validateApiKey(newApiKey);
+      if (!isValid) {
+        alert("Please enter a valid OpenRouter API key.");
+        return;
+      }
+    }
+    
+    config.apiKey = newApiKey;
+    
+    // Get model selection
+    if (modelSelect.value === 'custom') {
+      config.preferredModel = customModelInput.value.trim();
+      if (!config.preferredModel) {
+        alert("Please enter a custom model identifier.");
+        return;
+      }
+    } else {
+      config.preferredModel = modelSelect.value;
+      if (!config.preferredModel) {
+        alert("Please select an AI model.");
+        return;
+      }
+    }
+    
+    // Get other settings
+    config.userInfo = userInfoInput.value;
+    config.responseInstructions = responseInstructionsInput.value;
+    config.aiSpeechEnabled = aiSpeechToggle.checked;
+    config.aiNotes = aiNotesInput.value;
+
+    // Save all settings to localStorage
+    localStorage.setItem('apiKey', config.apiKey);
+    localStorage.setItem('preferredModel', config.preferredModel);
+    localStorage.setItem('userInfo', config.userInfo);
+    localStorage.setItem('responseInstructions', config.responseInstructions);
+    localStorage.setItem('aiSpeechEnabled', config.aiSpeechEnabled);
+    localStorage.setItem('aiNotes', config.aiNotes);
+
+    updateTalkButtonText();
+    applet.classList.add('translate-x-full');
+    
+    addNotificationMessage('Settings saved successfully!');
+  });
+
+  // Talk/Send Button
+  talkButton.addEventListener('click', () => {
+    if (recognizing) {
+      recognition.stop();
+    } else if (!config.aiSpeechEnabled) {
+      addMessage();
+    } else {
+      if (currentUtterance) {
+        speechSynthesis.cancel();
+        currentUtterance = null;
+      }
+      recognition.start();
+    }
+  });
+
+  // Input
+  messageInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      addMessage();
+    }
+  });
+
+  // Initialize data from localStorage
+  config.apiKey = localStorage.getItem('apiKey') || '';
+  config.preferredModel = localStorage.getItem('preferredModel') || '';
+  config.userInfo = localStorage.getItem('userInfo') || '';
+  config.responseInstructions = localStorage.getItem('responseInstructions') || '';
+  config.aiSpeechEnabled = localStorage.getItem('aiSpeechEnabled') === 'true';
+  config.aiNotes = localStorage.getItem('aiNotes') || '';
+  config.textSize = parseInt(localStorage.getItem('textSize')) || 16;
+  config.currentTheme = localStorage.getItem('theme') || 'dark-mode';
+  config.buttonRadius = parseInt(localStorage.getItem('buttonRadius')) || 6;
+  config.accentColor = localStorage.getItem('accentColor') || '#3b82f6';
+  chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+  customModels = JSON.parse(localStorage.getItem('customModels')) || [];
+
+  // Set appearance
+  setTheme(config.currentTheme);
+  setButtonRoundness(config.buttonRadius);
+  setAccentColor(config.accentColor);
+  
+  // Update UI with current values
+  buttonRoundness.value = config.buttonRadius;
+  textSizeDisplay.textContent = `${config.textSize}px`;
+  
+  // Load custom models
+  loadCustomModels();
+
+  // Set initial values for form fields
+  apiKeyInput.value = config.apiKey;
+  conversation.style.fontSize = `${config.textSize}px`;
+  
+  // Setup model selection
+  if (config.preferredModel) {
+    // Check if it's in our predefined list
+    const modelOption = Array.from(modelSelect.options).find(option => option.value === config.preferredModel);
+    
+    if (modelOption) {
+      modelSelect.value = config.preferredModel;
+      
+      // Check if this is a custom model
+      const isCustomModel = customModels.some(model => model.id === config.preferredModel);
+      if (isCustomModel) {
+        modelManageContainer.classList.remove('hidden');
+      }
+    } else {
+      // Must be a custom model that's no longer in the list
+      modelSelect.value = 'custom';
+      customModelContainer.classList.remove('hidden');
+      customModelInput.value = config.preferredModel;
+    }
+  }
+  
+  userInfoInput.value = config.userInfo;
+  responseInstructionsInput.value = config.responseInstructions;
+  aiSpeechToggle.checked = config.aiSpeechEnabled;
+  aiNotesInput.value = config.aiNotes;
+
+  // Initialize UI
+  updateTalkButtonText();
+  
+  // Show welcome message
+  if (chatHistory.length === 0) {
+    const welcomeElement = document.createElement('div');
+    welcomeElement.innerHTML = marked(`
+# Welcome to AI Chat!
+
+To get started:
+1. Click the settings button (⚙️) in the top-left
+2. Enter your OpenRouter API Key
+3. Select a model from the dropdown
+4. Save settings
+
+**Features:**
+- Hover over AI messages to see Copy, Read, and Delete buttons
+- 7 theme options including Dark Purple and Dark Blue
+- Custom shapes and colors for all interface elements
+- Add custom models by typing "add model" in the chat
+    `);
+    conversation.appendChild(welcomeElement);
+  }
+});
+```
