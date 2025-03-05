@@ -13,19 +13,26 @@ const config = {
   aiSpeechEnabled: true
 };
 
-// Speech recognition variables
-let recognizing = false;
-let recognition;
-let currentUtterance = null;
-
-// Storage for models and history
-let chatHistory = [];
-let customModels = [];
-let isApiKeyValid = false;
-
-// Initialize speech recognition if available
-if ('webkitSpeechRecognition' in window) {
-  recognition = new webkitSpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = false;
+// Load configuration from local storage
+function loadConfig() {
+  const storedConfig = JSON.parse(localStorage.getItem('userConfig'));
+  if (storedConfig) {
+    Object.assign(config, storedConfig);
+  }
 }
+
+// Save configuration to local storage
+function saveConfig() {
+  localStorage.setItem('userConfig', JSON.stringify(config));
+}
+
+// Update a specific configuration setting
+function updateConfig(key, value) {
+  if (config.hasOwnProperty(key)) {
+    config[key] = value;
+    saveConfig();
+  }
+}
+
+// Initialize configuration on load
+loadConfig();
